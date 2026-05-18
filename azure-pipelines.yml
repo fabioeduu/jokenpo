@@ -5,25 +5,28 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  ConnectedServiceName: '178990e3-3232-4099-b0b8-c39f62835b42'
-  WebAppKind: 'webAppLinux'
   WebAppName: 'jokenpo'
 
 steps:
 
+# Python
 - task: UsePythonVersion@0
   inputs:
     versionSpec: '3.11'
-  displayName: "Use Python 3.11"
+  displayName: 'Use Python 3.11'
 
+# Dependências
 - script: |
+    python -m pip install --upgrade pip
     pip install flask
-  displayName: "Install dependencies"
+  displayName: 'Install dependencies'
 
+# Teste básico
 - script: |
     python -c "import jokenpo"
-  displayName: "Test import"
+  displayName: 'Test import'
 
+# ZIP da aplicação
 - task: ArchiveFiles@2
   inputs:
     rootFolderOrFile: '$(Build.SourcesDirectory)'
@@ -31,10 +34,11 @@ steps:
     archiveType: zip
     archiveFile: '$(Build.ArtifactStagingDirectory)/app.zip'
     replaceExistingArchive: true
-  displayName: "Create ZIP"
+  displayName: 'Create ZIP package'
 
+# Publica artifact
 - task: PublishBuildArtifacts@1
   inputs:
     pathToPublish: '$(Build.ArtifactStagingDirectory)'
     artifactName: drop
-  displayName: "Publish Artifact"
+  displayName: 'Publish Artifact'
