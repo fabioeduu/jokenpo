@@ -8,12 +8,28 @@ steps:
 - task: UsePythonVersion@0
   inputs:
     versionSpec: '3.11'
+  displayName: "Use Python 3.11"
 
 - script: |
     python -m pip install --upgrade pip
     pip install flask
-  displayName: Install dependencies
+  displayName: "Install dependencies"
 
 - script: |
     python -c "import jokenpo"
-  displayName: Test import
+  displayName: "Test import"
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(Build.SourcesDirectory)'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/app.zip'
+    replaceExistingArchive: true
+  displayName: "Create ZIP package"
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: '$(Build.ArtifactStagingDirectory)'
+    artifactName: 'drop'
+  displayName: "Publish artifact"
