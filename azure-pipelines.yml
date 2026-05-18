@@ -4,32 +4,38 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
+variables:
+  ConnectedServiceName: '178990e3-3232-4099-b0b8-c39f62835b42'
+  WebAppKind: 'webAppLinux'
+  WebAppName: 'jokenpo'
+
 steps:
+
 - task: UsePythonVersion@0
   inputs:
     versionSpec: '3.11'
-  displayName: "Use Python 3.11"
 
 - script: |
-    python -m pip install --upgrade pip
     pip install flask
   displayName: "Install dependencies"
-
-- script: |
-    python -c "import jokenpo"
-  displayName: "Test import"
 
 - task: ArchiveFiles@2
   inputs:
     rootFolderOrFile: '$(Build.SourcesDirectory)'
     includeRootFolder: false
-    archiveType: 'zip'
+    archiveType: zip
     archiveFile: '$(Build.ArtifactStagingDirectory)/app.zip'
-    replaceExistingArchive: true
-  displayName: "Create ZIP package"
 
 - task: PublishBuildArtifacts@1
   inputs:
     pathToPublish: '$(Build.ArtifactStagingDirectory)'
-    artifactName: 'drop'
-  displayName: "Publish artifact"
+    artifactName: drop
+
+# DEPLOY (APP SERVICE)
+- task: AzureRmWebAppDeployment@4
+  displayName: 'Deploy Azure App Service'
+  inputs:
+    azureSubscription: '$(ConnectedServiceName)'
+    appType: 'webAppLinux'
+    WebAppName: '$(WebAppName)'
+    packageForLinux: '$(System.ArtifactsDirectory)/drop/app.zip'
