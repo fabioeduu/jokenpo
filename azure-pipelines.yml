@@ -14,10 +14,15 @@ steps:
 - task: UsePythonVersion@0
   inputs:
     versionSpec: '3.11'
+  displayName: "Use Python 3.11"
 
 - script: |
     pip install flask
   displayName: "Install dependencies"
+
+- script: |
+    python -c "import jokenpo"
+  displayName: "Test import"
 
 - task: ArchiveFiles@2
   inputs:
@@ -25,17 +30,11 @@ steps:
     includeRootFolder: false
     archiveType: zip
     archiveFile: '$(Build.ArtifactStagingDirectory)/app.zip'
+    replaceExistingArchive: true
+  displayName: "Create ZIP"
 
 - task: PublishBuildArtifacts@1
   inputs:
     pathToPublish: '$(Build.ArtifactStagingDirectory)'
     artifactName: drop
-
-# DEPLOY (APP SERVICE)
-- task: AzureRmWebAppDeployment@4
-  displayName: 'Deploy Azure App Service'
-  inputs:
-    azureSubscription: '$(ConnectedServiceName)'
-    appType: 'webAppLinux'
-    WebAppName: '$(WebAppName)'
-    packageForLinux: '$(System.ArtifactsDirectory)/drop/app.zip'
+  displayName: "Publish Artifact"
