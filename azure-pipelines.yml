@@ -6,86 +6,39 @@ pool:
 
 variables:
   WebAppName: 'jokenpo'
-  AzureServiceConnection: 'azure-connection'
 
-stages:
+steps:
 
-# ── BUILD ──────────────────────────────────────────────────────────────────────
-- stage: Build
-  displayName: 'Build'
-  jobs:
-  - job: BuildJob
-    displayName: 'Build Job'
-    steps:
+# Python
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.11'
+  displayName: 'Use Python 3.11'
 
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '3.11'
-      displayName: 'Use Python 3.11'
+# Dependências
+- script: |
+    python -m pip install --upgrade pip
+    pip install flask
+  displayName: 'Install dependencies'
 
-    - script: |
-        python -m pip install --upgrade pip
-        pip install flask
-      displayName: 'Install dependencies'
+# Teste básico
+- script: |
+    python -c "import jokenpo"
+  displayName: 'Test import'
 
-    - script: |
-        python -c "import jokenpo"
-      displayName: 'Test import'
+# ZIP da aplicação
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(Build.SourcesDirectory)'
+    includeRootFolder: false
+    archiveType: zip
+    archiveFile: '$(Build.ArtifactStagingDirectory)/app.zip'
+    replaceExistingArchive: true
+  displayName: 'Create ZIP package'
 
-    - task: ArchiveFiles@2
-      inputs:
-        rootFolderOrFile: '$(Build.SourcesDirectory)'
-        includeRootFolder: false
-        archiveType: zip
-        archiveFile: '$(Build.ArtifactStagingDirectory)/app.zip'
-        replaceExistingArchive: true
-      displayName: 'Create ZIP package'
-
-    - task: PublishBuildArtifacts@1
-      inputs:
-        pathToPublish: '$(Build.ArtifactStagingDirectory)'
-        artifactName: drop
-      displayName: 'Publish Artifact'
-
-# ── DEPLOY ─────────────────────────────────────────────────────────────────────
-- stage: Deploy
-  displayName: 'Deploy'
-  dependsOn: Build
-  condition: succeeded()
-  jobs:
-  - job: DeployJob
-    displayName: 'Deploy to Azure App Service'
-    steps:
-
-    # Mostra todos os caminhos disponíveis para debug
-    - script: |
-        echo "=== Pipeline.Workspace ==="
-        ls -la $(Pipeline.Workspace) || echo "vazio"
-        echo "=== System.ArtifactsDirectory ==="
-        ls -la $(System.ArtifactsDirectory) || echo "vazio"
-        echo "=== Agent.BuildDirectory ==="
-        ls -la $(Agent.BuildDirectory) || echo "vazio"
-      displayName: 'Debug: listar caminhos'
-
-    - task: DownloadBuildArtifacts@1
-      inputs:
-        buildType: 'current'
-        downloadType: 'single'
-        artifactName: 'drop'
-        downloadPath: '$(Pipeline.Workspace)/drop'
-      displayName: 'Download Artifact'
-
-    # Confirma que o zip chegou
-    - script: |
-        echo "=== Conteúdo após download ==="
-        find $(Pipeline.Workspace)/drop -type f
-      displayName: 'Debug: confirmar zip'
-
-    - task: AzureWebApp@1
-      inputs:
-        azureSubscription: '$(AzureServiceConnection)'
-        appType: 'webAppLinux'
-        appName: '$(WebAppName)'
-        package: '$(Pipeline.Workspace)/drop/drop/app.zip'
-        runtimeStack: 'PYTHON|3.11'
-      displayName: 'Deploy to Azure App Service'
+# Publica artifact
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: '$(Build.ArtifactStagingDirectory)'
+    artifactName: drop
+  displayName: 'Publish Artifact'
