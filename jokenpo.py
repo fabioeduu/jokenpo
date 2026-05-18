@@ -7,6 +7,10 @@ user_score = 0
 computer_score = 0
 rounds = 0
 
+@app.route('/teste')
+def teste():
+    return "Funcionando, para CheckPoint3"
+
 @app.route('/')
 def index():
     return "Bem-vindo ao Jogo de Jokenpô! Use a rota /play para jogar."
