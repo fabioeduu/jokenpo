@@ -30,7 +30,7 @@ steps:
 - task: Docker@2
   displayName: 'Build and Push Docker Image'
   inputs:
-    containerRegistry: 'NOME_DA_SUA_CONEXAO_AQUI' # O assistente preenche isto automaticamente
+    containerRegistry: dotnetmssqlrm560416 # O assistente preenche isto automaticamente
     repository: 'jokenpo'
     command: 'buildAndPush'
     Dockerfile: '**/Dockerfile'
