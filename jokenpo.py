@@ -1,25 +1,24 @@
+import os
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 import random
-import os
 
 app = Flask(__name__)
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://neondb_owner:npg_8F3tMOnsLlJg@ep-shiny-sunset-aq7qv8re.c-8.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+    "postgresql+psycopg2://neondb_owner:npg_8F3tMOnsLlJg@ep-shiny-sunset-aq7qv8re.c-8.us-east-1.aws.neon.tech/neondb?sslmode=require"
 )
 
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-db = SQLAlchemy(app)
 
+db = SQLAlchemy(app)
 
 class Player(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False)
-
 
 class Match(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -28,10 +27,8 @@ class Match(db.Model):
     escolha_computador = db.Column(db.String(20))
     resultado = db.Column(db.String(20))
 
-
 with app.app_context():
     db.create_all()
-
 
 user_score = 0
 computer_score = 0
