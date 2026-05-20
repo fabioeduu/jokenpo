@@ -1,17 +1,13 @@
-# Use a imagem base do Python
-FROM python:3.9-slim
+FROM python:3.11-slim
 
-# Define o diretório de trabalho
 WORKDIR /app
 
-# Copia o arquivo do jogo para o contêiner
-COPY jokenpo.py .
+COPY requirements.txt .
 
-# Instala o Flask
-RUN pip install flask
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Expõe a porta 80
-EXPOSE 80
+COPY . .
 
-# Define o comando para rodar o aplicativo
+EXPOSE 5000
+
 CMD ["python", "jokenpo.py"]
