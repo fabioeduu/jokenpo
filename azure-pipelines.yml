@@ -1,44 +1,23 @@
 trigger:
-- main
+  - Teste_da_pipeline
+
 
 pool:
   vmImage: ubuntu-latest
 
-variables:
-  WebAppName: 'jokenpo'
+stages:
 
-steps:
-
-# Python
-- task: UsePythonVersion@0
-  inputs:
-    versionSpec: '3.11'
-  displayName: 'Use Python 3.11'
-
-# Dependências
-- script: |
-    python -m pip install --upgrade pip
-    pip install flask
-  displayName: 'Install dependencies'
-
-# Teste básico
-- script: |
-    python -c "import jokenpo"
-  displayName: 'Test import'
-
-# ZIP da aplicação
-- task: ArchiveFiles@2
-  inputs:
-    rootFolderOrFile: '$(Build.SourcesDirectory)'
-    includeRootFolder: false
-    archiveType: zip
-    archiveFile: '$(Build.ArtifactStagingDirectory)/app.zip'
-    replaceExistingArchive: true
-  displayName: 'Create ZIP package'
-
-# Publica artifact
-- task: PublishBuildArtifacts@1
-  inputs:
-    pathToPublish: '$(Build.ArtifactStagingDirectory)'
-    artifactName: drop
-  displayName: 'Publish Artifact'
+  - stage: Build
+    displayName: "Build e Push para ACR"
+    jobs:
+      - job: BuildAndPush
+        steps:
+          - task: Docker@2
+            inputs:
+              containerRegistry: 'pythonmssqlrm560416'
+              repository: 'pythonmssql'
+              command: 'buildAndPush'
+              Dockerfile: '**/Dockerfile'
+              tags: |
+                $(Build.BuildId)
+                latest
