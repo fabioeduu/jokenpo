@@ -25,7 +25,7 @@ stages:
             displayName: "Push para ACR"
             inputs:
               containerRegistry: "pythonmssqlrm560416"
-              repository:        "pythonsql"
+              repository:        "pythonmssql"
               command:           "push"
               tags: |
                 $(Build.BuildId)
