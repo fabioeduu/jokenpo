@@ -21,3 +21,44 @@ stages:
               tags: |
                 $(Build.BuildId)
                 latest
+          - task: Docker@2
+            displayName: "Push para ACR"
+            inputs:
+              containerRegistry: "pythonmssqlrm560416"
+              repository:        "pythonsql"
+              command:           "push"
+              tags: |
+                $(Build.BuildId)
+                latest
+
+  - stage: Deploy
+    displayName: "Deploy no ACI"
+    dependsOn: Build
+    jobs:
+      - job: DeployACI
+        steps:
+          - task: AzureCLI@2
+            displayName: "Criar container no ACI"
+            inputs:
+              azureSubscription: "Azure for Students (b2791124-b4e1-4efc-9b65-037eb38699a4)"
+              scriptType:        "bash"
+              scriptLocation:    "inlineScript"
+              inlineScript: |
+                az container delete \
+                  --resource-group rg-azuredevops-docker \
+                  --name pythonmssqlrm560416 \
+                  --yes
+
+                az container create \
+                  --resource-group rg-azuredevops-docker \
+                  --name pythonmssqlrm560416 \
+                  --image pythonmssqlrm560416.azurecr.io/pythonmssql:latest \
+                  --cpu 2 \
+                  --memory 2 \
+                  --os-type Linux \
+                  --registry-login-server pythonmssqlrm560416.azurecr.io \
+                  --registry-username pythonmssqlrm560416 \
+                  --registry-password CnKEWGYqrSdT5rYhc7WiS0TBwRyUOk4zFpSwObTylpdOCCsiDe0dJQQJ99CEACR0EKYEqg7NAAACAZCRLWbE \
+                  --dns-name-label pythonmssqlrm560416 \
+                  --restart-policy Always \
+                  --ports 80 \
