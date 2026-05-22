@@ -21,10 +21,11 @@ Este repositório contém um jogo simples de **jokenpô** (pedra, papel e tesour
 
 ## Configurando o Projeto
 
+## Feito para checkpoint devops 03
+
 ### 1. Clonar o Repositório
 ```bash
 git clone https://github.com/seu-usuario/jokenpo-azure.git
 cd jokenpo-azure
-
 
 
