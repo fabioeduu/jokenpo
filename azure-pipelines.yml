@@ -62,3 +62,9 @@ stages:
                   --dns-name-label pythonmssqlrm560416 \
                   --restart-policy Always \
                   --ports 80 \
+                  --environment-variables \
+                    DB_USER="user-dimdimsql" \
+                    DB_PASSWORD="PRd23112025@" \
+                    DB_HOST="sql-server-dimdim-rm560416-spaincentral.database.windows.net" \
+                    DB_NAME="db-dimdim"
+                    DB_PORT="1433"
